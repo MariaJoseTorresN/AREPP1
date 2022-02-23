@@ -9,38 +9,42 @@ public class HttpServer {
         try {
             serverSocket = new ServerSocket(getPort());
         } catch (IOException e) {
-            System.err.println("Could not listen on port: 35000.");
+            System.err.println("Could not listen");
             System.exit(1);
         }
-        Socket clientSocket = null;
-        try {
-            System.out.println("Listo para recibir ...");
-            clientSocket = serverSocket.accept();
-        } catch (IOException e) {
-            System.err.println("Accept failed.");
-            System.exit(1);
-        }
-        PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-        BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        String outputLine;
         boolean running = true;
         while (running) {
-            outputLine = "<!DOCTYPE html>"
-            + "<html>"
-            + "<head>"
-            + "<meta charset=\"UTF-8\">"
-            + "<title>Title of the document</title>\n"
-            + "</head>"
-            + "<body>"
-            + "My Web Site"
-            + "</body>"
-            + "</html>";
-            out.println(outputLine);    
+            Socket clientSocket = null;
+            try {
+                System.out.println("Listo para recibir ...");
+                clientSocket = serverSocket.accept();
+            } catch (IOException e) {
+                System.err.println("Accept failed.");
+                System.exit(1);
+            }
+            PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+            BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            String outputLine;
+
+            outputLine = "HTTP/1.1 200 OK\r\n"
+                    + "Content-Type: text/html\r\n"
+                    + "\r\n"
+                    + "<!DOCTYPE html>\n"
+                    + "<html>\n"
+                    + "<head>\n"
+                    + "<meta charset=\"UTF-8\">\n"
+                    + "<title>Title of the document</title>\n"
+                    + "</head>\n"
+                    + "<body>\n"
+                    + "<h1>Mi propio mensaje</h1>\n"
+                    + "</body>\n"
+                    + "</html>\n";
+            out.println(outputLine);
+
+            out.close();
+            in.close();
+            clientSocket.close();
         }
-        
-        out.close();
-        in.close();
-        clientSocket.close();
         serverSocket.close();
     }
 
