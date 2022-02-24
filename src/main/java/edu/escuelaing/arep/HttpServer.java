@@ -24,23 +24,66 @@ public class HttpServer {
             }
             PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            String outputLine;
-
-            outputLine = "HTTP/1.1 200 OK\r\n"
+            String inputLine, outputLine;
+            boolean primeraLinea = true;
+            String file = "";
+            while ((inputLine = in.readLine()) != null) {
+                System.out.println("Received: " + inputLine);
+                if (primeraLinea) {
+                    file = inputLine.split(" ")[1];
+                    System.out.println("File: " + file);
+                    primeraLinea = false;
+                }
+                if (!in.ready()) {
+                    break;
+                }
+            }
+            if (file.startsWith("/clima")) {
+                outputLine = "HTTP/1.1 200 OK\r\n"
+                        + "Content-Type: text/html\r\n"
+                        + "\r\n"
+                        + "<!DOCTYPE html>"
+                        + "<html>"
+                        + "<head>"
+                        + "<meta charset=\"UTF-8\">"
+                        + "<title>Clima</title>\n"
+                        + "</head>"
+                        + "<body>"
+                        + "<h1>"
+                        + "Clima"
+                        + "</h1>"
+                        + "<input type='text' name='ciudad' id='ciudad'>"
+                        + "<input id='boton' type='button' value='Check' onclick='bringWeater'>"
+                        + "</body>"
+                        + "<script>"
+                        + document.getElementById("demo").addEventListener("click", myFunction);
+                        +   function myFunction() {
+                        +    document.getElementById("demo").innerHTML = "YOU CLICKED ME!";
+                        }
+                        </script>
+                        + "</html>";
+            }else if (file.startsWith("/consulta")){
+                String city = file.split("=")[1];
+                outputLine = "HTTP/1.1 200 OK\r\n"
+                    + "Content-Type: application/json\r\n"
+                    + "\r\n"
+                    + Respuesta.respuesta(city);
+            } else {
+                outputLine = "HTTP/1.1 200 OK\r\n"
                     + "Content-Type: text/html\r\n"
                     + "\r\n"
                     + "<!DOCTYPE html>\n"
                     + "<html>\n"
                     + "<head>\n"
                     + "<meta charset=\"UTF-8\">\n"
-                    + "<title>Title of the document</title>\n"
+                    + "<title>Parcial AREP</title>\n"
                     + "</head>\n"
                     + "<body>\n"
-                    + "<h1>Mi propio mensaje</h1>\n"
+                    + "<h1>Parcial</h1>\n"
                     + "</body>\n"
                     + "</html>\n";
+            }
             out.println(outputLine);
-
             out.close();
             in.close();
             clientSocket.close();
@@ -54,4 +97,5 @@ public class HttpServer {
         }
         return 35000;
     }
+
 }
